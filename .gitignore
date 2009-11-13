@@ -1,0 +1,13 @@
+obj
+bin
+Bowling/Debug/
+*.suo
+*.obj
+*.htm
+*.pdb
+*.ncb
+*.dep
+*.exe
+*.bsc
+*.ilk
+*.dep
