@@ -18,6 +18,9 @@
 
 #include "GameStateManager.h"
 
+static const int NUM_THROWS = 21;
+static const int NUM_TOTALS = 11;
+
 class Bowling : public NiSample
 {
 public:
@@ -63,7 +66,8 @@ protected:
 	unsigned int m_num;
 	NiFontPtr m_spFont;
     
-    Ni2DStringPtr m_spStrThrows;
+    Ni2DStringPtr m_spStrThrows[NUM_THROWS];
+	Ni2DStringPtr m_spStrTotals[NUM_TOTALS];
     NiColorA m_kColor;
     NiFixedString m_kUnicodeRenderClickName;
 

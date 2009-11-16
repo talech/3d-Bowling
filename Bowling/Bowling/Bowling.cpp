@@ -338,7 +338,13 @@ bool Bowling::CreateFrame()
     // Create a render click to render the Ni2DString objects.
     Ni2DStringRenderClick* pkUnicodeRenderClick = NiNew Ni2DStringRenderClick;
     pkUnicodeRenderClick->SetName(m_kUnicodeRenderClickName);
-    pkUnicodeRenderClick->Append2DString(m_spStrThrows);
+	for(int i=0; i<NUM_THROWS; i++){
+		pkUnicodeRenderClick->Append2DString(m_spStrThrows[i]);
+	}
+
+	for(int i=0; i<NUM_TOTALS; i++){
+		pkUnicodeRenderClick->Append2DString(m_spStrTotals[i]);
+	}
 
     // Insert render click at the end of the main render step.
     NIASSERT(m_spFrame);
@@ -611,21 +617,41 @@ bool Bowling::CreateScoreElements(){
         return false;
     }
 
-	// Use viewport size to calculate text positions
+	// frames text positions
 	unsigned int uiWelcomeOffsetX = 34;
     unsigned int uiWelcomeOffsetY = 63;
 
 		//"Hello"
-	m_num = 0;
+	m_num = 10;
 	char displ [50];
-	sprintf (displ, "Hello %d", m_num);
+	sprintf (displ, "%d", m_num);
 		
-	m_spStrThrows = NiNew Ni2DString(m_spFont, m_uiFlags, 128,
-           displ, m_kColor, 
-           (short)uiWelcomeOffsetX,
-           (short)uiWelcomeOffsetY);
+	for(int i=0; i<NUM_THROWS; i++){
+		m_spStrThrows[i] = NiNew Ni2DString(m_spFont, m_uiFlags, 128,
+			   displ, m_kColor, 
+			   (short)uiWelcomeOffsetX,
+			   (short)uiWelcomeOffsetY);
 
-    m_spStrThrows->SetPointSize(12);
+		uiWelcomeOffsetX += 33;
+		m_spStrThrows[i]->SetPointSize(12);
+	}
+
+	// total scores positions
+	uiWelcomeOffsetX = 50;
+    uiWelcomeOffsetY = 100;
+
+	m_num = 110;
+	sprintf (displ, "%d", m_num);
+		
+	for(int i=0; i<NUM_TOTALS; i++){
+		m_spStrTotals[i] = NiNew Ni2DString(m_spFont, m_uiFlags, 128,
+			   displ, m_kColor, 
+			   (short)uiWelcomeOffsetX,
+			   (short)uiWelcomeOffsetY);
+
+		uiWelcomeOffsetX += 66;
+		m_spStrTotals[i]->SetPointSize(24);
+	}
 
 	return true;
 }
@@ -633,6 +659,8 @@ bool Bowling::CreateScoreElements(){
 //----------------------------------------------------------------------------
 void Bowling::DrawScore(){
 	// Draw Updated Score
-	m_num++;
-    m_spStrThrows->sprintf("%d",m_num);
+	/*m_num++;
+	for(int i=0; i<NUM_THROWS; i++){
+		m_spStrThrows[i]->sprintf("%d",m_num);
+	}*/
 }
