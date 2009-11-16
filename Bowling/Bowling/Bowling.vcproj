@@ -42,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(FMOD)\api\inc&quot;;&quot;$(EMERGENT_PATH)\SDK\Win32\include&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\Foundation\include&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\Cooking\include&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\PhysXLoader\include&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\Physics\include&quot;; "
+				AdditionalIncludeDirectories="&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(FMOD)\api\inc&quot;;&quot;$(EMERGENT_PATH)\SDK\Win32\include&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\Foundation\include&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\Cooking\include&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\PhysXLoader\include&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\Physics\include&quot;; "
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,9 +62,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="efd.lib PhysXLoader.lib efdPhysX.lib NiPhysX.lib NiSystem.lib NiFloodgate.lib NiMain.lib NiMesh.lib NiAnimation.lib NiApplication.lib NiVisualTracker.lib NiInput.lib fmodex_vc.lib"
+				AdditionalDependencies="efd.lib PhysXLoader.lib efdPhysX.lib NiCursor.lib NiUserInterface.lib NiFont.lib NiPhysX.lib NiSystem.lib NiFloodgate.lib NiMain.lib NiMesh.lib NiAnimation.lib NiApplication.lib NiSample.lib NiVisualTracker.lib NiInput.lib fmodex_vc.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(FMOD)\api\lib&quot;;&quot;$(EMERGENT_PATH)\sdk\Win32\Lib\VC90\$(ConfigurationName)&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\lib\win32\&quot;;"
+				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\x86&quot;;&quot;$(FMOD)\api\lib&quot;;&quot;$(EMERGENT_PATH)\sdk\Win32\Lib\VC90\$(ConfigurationName)&quot;;&quot;$(PHYSXINSTALLPATH)\SDKs\lib\win32\&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -96,6 +96,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\..\..\..\..\..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_Config_Release.vsprops;..\..\..\..\..\..\..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_Language.vsprops;..\..\..\..\..\..\..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_PhysX_StaticLink.vsprops;..\..\..\..\..\..\..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_Target_StaticLinkedExecutable.vsprops"
 			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
@@ -118,7 +119,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(FMOD)\api\inc&quot;;&quot;$(EMERGENT_PATH)\SDK\Win32\include&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\Foundation\include&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\Cooking\include&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\PhysXLoader\include&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\Physics\include&quot;; "
+				AdditionalIncludeDirectories="&quot;$(DXSDK_DIR)\Include&quot;;&quot;$(FMOD)\api\inc&quot;;&quot;$(EMERGENT_PATH)\SDK\Win32\include&quot;;&quot;$(PHYSXINSTALLPATH)\SDKs\Foundation\include&quot;;&quot;$(PHYSXINSTALLPATH)\SDKs\Cooking\include&quot;;&quot;$(PHYSXINSTALLPATH)\SDKs\PhysXLoader\include&quot;;&quot;$(PHYSXINSTALLPATH)\SDKs\Physics\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -137,9 +138,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="efd.lib PhysXLoader.lib efdPhysX.lib NiPhysX.lib NiSystem.lib NiFloodgate.lib NiMain.lib NiMesh.lib NiAnimation.lib NiApplication.lib NiVisualTracker.lib NiInput.lib fmodex_vc.lib"
+				AdditionalDependencies="efd.lib PhysXLoader.lib efdPhysX.lib NiCursor.lib NiUserInterface.lib NiFont.lib NiPhysX.lib NiSystem.lib NiFloodgate.lib NiMain.lib NiMesh.lib NiAnimation.lib NiApplication.lib NiVisualTracker.lib NiInput.lib fmodex_vc.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(FMOD)\api\lib&quot;;&quot;$(EMERGENT_PATH)\sdk\Win32\Lib\VC90\$(ConfigurationName)&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\lib\win32\&quot;;"
+				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\x86&quot;;&quot;$(FMOD)\api\lib&quot;;&quot;$(EMERGENT_PATH)\sdk\Win32\Lib\VC90\$(ConfigurationName)&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\lib\win32\&quot;;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -182,9 +183,53 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MousePath.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SoundSystem.cpp"
 				>
 			</File>
+			<Filter
+				Name="FSM"
+				>
+				<File
+					RelativePath=".\BallRoll.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\GameStateManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\InitializeState.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\LoadState.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\NewGameMenu.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\PositionBall.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ResetPins.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\RunningState.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ThrowBall.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -196,9 +241,57 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MousePath.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SoundSystem.h"
 				>
 			</File>
+			<Filter
+				Name="FSM"
+				>
+				<File
+					RelativePath=".\BallRoll.h"
+					>
+				</File>
+				<File
+					RelativePath=".\GameState.h"
+					>
+				</File>
+				<File
+					RelativePath=".\GameStateManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\InitializeState.h"
+					>
+				</File>
+				<File
+					RelativePath=".\LoadState.h"
+					>
+				</File>
+				<File
+					RelativePath=".\NewGameMenu.h"
+					>
+				</File>
+				<File
+					RelativePath=".\PositionBall.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ResetPins.h"
+					>
+				</File>
+				<File
+					RelativePath=".\RunningState.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ThrowBall.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -213,6 +306,66 @@
 				RelativePath="..\..\..\..\..\..\..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\sdk\Win32\Resource\NiSettingsDialogResource.rc"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Data"
+			>
+			<File
+				RelativePath="..\Data\Win32\Ball.nif"
+				>
+			</File>
+			<File
+				RelativePath="..\Data\Win32\BallText.nif"
+				>
+			</File>
+			<File
+				RelativePath="..\Data\Win32\bowling.nif"
+				>
+			</File>
+			<File
+				RelativePath="..\Data\Win32\bowling3.mb"
+				>
+			</File>
+			<File
+				RelativePath="..\Data\Win32\bowlingAlley.nif"
+				>
+			</File>
+			<File
+				RelativePath="..\Data\Win32\explosion.wav"
+				>
+			</File>
+			<File
+				RelativePath="..\Data\Win32\lane_gutter.nif"
+				>
+			</File>
+			<File
+				RelativePath="..\Data\Win32\pins.nif"
+				>
+			</File>
+			<File
+				RelativePath="..\Data\Win32\pins2.nif"
+				>
+			</File>
+			<File
+				RelativePath="..\Data\Win32\scoresheet2.tga"
+				>
+			</File>
+			<Filter
+				Name="Font"
+				>
+				<File
+					RelativePath="..\Data\Win32\Font\ArialUnicodeMS_BA_36.nff"
+					>
+				</File>
+				<File
+					RelativePath="..\Data\Win32\Font\readme.txt"
+					>
+				</File>
+				<File
+					RelativePath="..\Data\Win32\Font\strings.cfg"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

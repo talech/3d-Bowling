@@ -1,14 +1,24 @@
 #ifndef Bowling_H
 #define Bowling_H
 
+#define GAMEBRYO
+
+
 #include <efdPhysX/PhysXSDKManager.h>
 
-#include <NiApplication.h>
+#include <stdio.h>
+#include <NiSample.h>
+#include <NiFont.h>
+#include <Ni2DString.h>
+#include <Ni2DStringRenderClick.h>
 #include <NiPhysX.h>
 #include "SoundSystem.h"
+#include "MousePath.h"
 
 
-class Bowling : public NiApplication
+#include "GameStateManager.h"
+
+class Bowling : public NiSample
 {
 public:
     Bowling();
@@ -18,13 +28,17 @@ public:
     void Terminate();
     void UpdateFrame();
     void ProcessInput();
+	//bool CreateUIElements();
 	void ApplyForceToActor(NxActor* actor, const NxVec3& forceDir, const NxReal forceStrength);
+
+	void SetCamera( NiCameraPtr cam );
 
 	SoundSystem soundSystem;
 
 protected:
     // Create all the contents of the scene
     bool CreateScene();
+	bool CreateFrame();
     void ResetBall();
     
     // Remap the keys used to control the view.
@@ -38,8 +52,26 @@ protected:
     NiTurret m_kTurret;
     NiNodePtr m_spTrnNode;
     NiNodePtr m_spRotNode;
-	NiPhysXPropPtr spCubeProp;
+	NiPhysXPropPtr spBallProp;
 	NiAVObjectPtr spCone;
+
+	//Screen Overlay
+	bool CreateScreenElements();
+	void DrawScore();
+	bool CreateScoreElements();
+	unsigned int m_uiFlags;
+	unsigned int m_num;
+	NiFontPtr m_spFont;
+    
+    Ni2DStringPtr m_spStrThrows;
+    NiColorA m_kColor;
+    NiFixedString m_kUnicodeRenderClickName;
+
+	// MousePath to maintain the direction of the ball
+	MousePath m_mousePath;
+
+	// Keep track if the ball is in motion
+	bool m_ballInMotion;
 
 	// Physics contact callbacks
     class ContactReporter : public NxUserContactReport    

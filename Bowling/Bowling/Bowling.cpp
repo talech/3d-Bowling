@@ -17,6 +17,14 @@
 
 #include <NiLicense.h>
 
+#include "GameStateManager.h"
+#include "GameState.h"
+#include "RunningState.h"
+#include "InitializeState.h"
+#include "LoadState.h"
+#include "NewGameMenu.h"
+#include <NiUIManager.h>
+
 NiEmbedGamebryoLicenseCode;
 
 //---------------------------------------------------------------------------
@@ -25,7 +33,7 @@ NiApplication* NiApplication::Create()
     return NiNew Bowling;
 }
 //---------------------------------------------------------------------------
-Bowling::Bowling() : NiApplication("T&T Bowling",
+Bowling::Bowling() : NiSample("T&T Bowling",
     DEFAULT_WIDTH, DEFAULT_HEIGHT, true), 
 	m_PhysContactReporter()
 {
@@ -40,6 +48,18 @@ Bowling::Bowling() : NiApplication("T&T Bowling",
     SetMediaPath("D:/DATA/Win32/");
 #endif // defined(WIN32) && !defined(_XBOX)
 
+#if defined(_XENON)
+    SetUISkinFilename("D:\\Data\\UISkinFull.dds");
+#elif defined(_PS3)
+    NIVERIFY(FindSampleDataFile("UISkinFull_ps3.dds", m_acSkinPath));
+#elif defined(WIN32)
+    NIVERIFY(FindSampleDataFile("UISkinFull.dds", m_acSkinPath));
+#elif defined(_WII)
+    SetUISkinFilename("/Data/UISkinFull_wii.dds");
+#else
+#error "Unsupported platform"
+#endif
+
 	m_PhysContactReporter.m_app = this;
 
     m_spTrnNode = 0;
@@ -48,6 +68,13 @@ Bowling::Bowling() : NiApplication("T&T Bowling",
     // Initialize smart pointers to zero. In the case of early termination
     // this avoid errors.
     m_spPhysScene = 0;
+
+	GameStateManager::getInstance()->addApplication(this);
+	GameStateManager::getInstance()->start(RunningState::getInstance());
+
+	m_kColor = NiColorA(0.0f, 0.0f, 0.0f, 1.0f);
+    m_uiFlags = NiFontString::COLORED | NiFontString::CENTERED;
+    m_kUnicodeRenderClickName = "Unicode Render Click";
 }
 //---------------------------------------------------------------------------
 Bowling::~Bowling()
@@ -56,6 +83,8 @@ Bowling::~Bowling()
 //---------------------------------------------------------------------------
 bool Bowling::Initialize()
 {
+	GameStateManager::getInstance()->pushState(InitializeState::getInstance());
+
     // Save a pointer to the PhysXSDKManager object. This is Emergent's
     // manager for all PhysX global functionality. The file
     // <efdPhysX/PhysXSDKManager.h> must be included for this object to exist.
@@ -90,6 +119,15 @@ bool Bowling::Initialize()
 
     if (!NiApplication::Initialize())
         return false;
+
+	/*if (!NiSample::CreateUISystem())
+		return false;
+
+	if (!CreateUIElements())
+		return false;
+
+	if (!NiSample::CompleteUISystem())
+		return false;*/
             
     // Set up camera control
     SetTurretControls();
@@ -98,7 +136,12 @@ bool Bowling::Initialize()
     m_spScene->UpdateProperties();
     m_spScene->UpdateEffects();
     m_spScene->Update(0.0f);
-        
+
+	GameStateManager::getInstance()->physManager = m_pkPhysManager;
+	GameStateManager::getInstance()->physScene = m_spPhysScene;
+	GameStateManager::getInstance()->scene = m_spScene;
+	GameStateManager::getInstance()->changeState(NewGameMenu::getInstance());
+    
     return true;
 }
 //---------------------------------------------------------------------------
@@ -115,17 +158,23 @@ void Bowling::Terminate()
     // deleted and before the application terminates.
     m_pkPhysManager->Shutdown();
     
-    NiApplication::Terminate();
+    NiSample::Terminate();
 }
 //---------------------------------------------------------------------------
 bool Bowling::CreateScene()
 {
+	GameStateManager::getInstance()->pushState(LoadState::getInstance());
     if(!NiApplication::CreateScene())
         return false;
 
     // Set the background color
-    NiColor kColor(0.5f, 0.6f, 1.0f);
+    NiColor kColor(0.5f, 0.5f, 1.0f);
     m_spRenderer->SetBackgroundColor(kColor);
+
+	// Because the scene will have some elements with alpha, use an 
+    // NiAlphaAccumulator so alpha gets sorted and drawn correctly.
+    NiAlphaAccumulator* pkAccum = NiNew NiAlphaAccumulator;
+    m_spRenderer->SetSorter(pkAccum);
     
     // We first create a PhysX scene and the Gamebryo wrapper for it. First
     // the wrapper.
@@ -143,7 +192,7 @@ bool Bowling::CreateScene()
     
     // Load some PhysX-enabled content.
     NiStream kStream;
-    if (!kStream.Load(ConvertMediaFilename("bowling.nif")))
+    if (!kStream.Load(ConvertMediaFilename("bowlingAlley.nif")))
 	{
         NIASSERT(0 && "Couldn't load nif file\n");
         NiMessageBox("Could not load bowling.nif. Aborting\n",
@@ -169,27 +218,27 @@ bool Bowling::CreateScene()
 
     // Look for a camera and the PhysX content. In this case, the PhysX
     // content is the bowling scene.
-    //NiPhysXPropPtr spBoxProp = 0;
-    //for (unsigned int ui = 1; ui < kStream.GetObjectCount(); ui++)
-    //{
-    //    if (NiIsKindOf(NiCamera, kStream.GetObjectAt(ui)))
-    //    {
-    //        m_spCamera = (NiCamera*)kStream.GetObjectAt(ui);
-    //    }
-    //    else if (NiIsKindOf(NiPhysXProp, kStream.GetObjectAt(ui)))
-    //    {
-    //        // We have found the PhysX content in the NIF.
-    //        spBoxProp = (NiPhysXProp*)kStream.GetObjectAt(ui);
-    //    }
-    //}
-    //NIASSERT(spBoxProp != 0);
+    NiPhysXPropPtr spLaneProp = 0;
+    for (unsigned int ui = 1; ui < kStream.GetObjectCount(); ui++)
+    {
+        if (NiIsKindOf(NiCamera, kStream.GetObjectAt(ui)))
+        {
+            //m_spCamera = (NiCamera*)kStream.GetObjectAt(ui);
+        }
+        else if (NiIsKindOf(NiPhysXProp, kStream.GetObjectAt(ui)))
+        {
+            // We have found the PhysX content in the NIF.
+            spLaneProp = (NiPhysXProp*)kStream.GetObjectAt(ui);
+        }
+    }
+    NIASSERT(spLaneProp != 0);
     
 	// This scene contains only the static box, so we do not need to set
     // anything else.
     
     // Repeat the process with the ball.
     kStream.RemoveAllObjects();
-    if (!kStream.Load(ConvertMediaFilename("Ball.nif")))
+    if (!kStream.Load(ConvertMediaFilename("BallText.nif")))
     {
         NIASSERT(0 && "Couldn't load nif file\n");
         NiMessageBox("Could not load Ball.nif. Aborting\n",
@@ -204,7 +253,7 @@ bool Bowling::CreateScene()
     m_spScene->AttachChild((NiAVObject*)kStream.GetObjectAt(0));
 
     // Look for the PhysX content.
-    NiPhysXPropPtr spBallProp = 0;
+    //NiPhysXPropPtr spBallProp = 0;
     for (unsigned int ui = 1; ui < kStream.GetObjectCount(); ui++)
     {
         if (NiIsKindOf(NiPhysXProp, kStream.GetObjectAt(ui)))
@@ -214,17 +263,44 @@ bool Bowling::CreateScene()
         }
     }
     NIASSERT(spBallProp != 0);
+
+	// Repeat the process with the ball.
+    kStream.RemoveAllObjects();
+    if (!kStream.Load(ConvertMediaFilename("pins2.nif")))
+    {
+        NIASSERT(0 && "Couldn't load nif file\n");
+        NiMessageBox("Could not load Ball.nif. Aborting\n",
+            "Missing nif file.");
+ 
+        return false;
+    }
+
+    // We know that this NIF file has the pins at location 0. Attach the
+    // pins to the scene graph.
+    NIASSERT(NiIsKindOf(NiAVObject, kStream.GetObjectAt(0)));
+    m_spScene->AttachChild((NiAVObject*)kStream.GetObjectAt(0));
 	
-	
+	// Look for the PhysX content.
+    NiPhysXPropPtr spPinsProp = 0;
+    for (unsigned int ui = 1; ui < kStream.GetObjectCount(); ui++)
+    {
+        if (NiIsKindOf(NiPhysXProp, kStream.GetObjectAt(ui)))
+        {
+            // We have found the PhysX content in the NIF.
+            spPinsProp = (NiPhysXProp*)kStream.GetObjectAt(ui);
+        }
+    }
+    NIASSERT(spPinsProp != 0);
+
     
     // Now we want the ball and the box to be in the scene.
     // We are doing this after the PhysX scnee has been created. Any props
     // added to a scene after the PhysX scene has been set are automatically
     // instanciated in that scene.
 	//m_spPhysScene->AddProp(spCubeProp);
-	//m_spPhysScene->AddProp(spCylinderProp);
+	m_spPhysScene->AddProp(spPinsProp);
     m_spPhysScene->AddProp(spBallProp);
-    //m_spPhysScene->AddProp(spBoxProp);
+    m_spPhysScene->AddProp(spLaneProp);
 
     // The ball is a destination object - the Gamebryo scene graph ball
     // receives pose information from the PhysX actor. We need to enable
@@ -241,8 +317,153 @@ bool Bowling::CreateScene()
 	//NxActor* cylinder = ((NiPhysXRigidBodyDest*)spCylinderProp->GetDestinationAt(0))->GetActor();
 	//m_spPhysScene->GetPhysXScene()->setActorPairFlags(*box, *cylinder, NX_NOTIFY_ON_TOUCH | NX_NOTIFY_FORCES);
 
+	
+	if(! CreateScoreElements())
+		return false;
+
+	CreateScreenElements();
+
+
+	GameStateManager::getInstance()->popState();
     return true;
 }
+//---------------------------------------------------------------------------
+bool Bowling::CreateFrame()
+{
+	if (!NiApplication::CreateFrame())
+    {
+        return false;
+    }
+
+    // Create a render click to render the Ni2DString objects.
+    Ni2DStringRenderClick* pkUnicodeRenderClick = NiNew Ni2DStringRenderClick;
+    pkUnicodeRenderClick->SetName(m_kUnicodeRenderClickName);
+    pkUnicodeRenderClick->Append2DString(m_spStrThrows);
+
+    // Insert render click at the end of the main render step.
+    NIASSERT(m_spFrame);
+    NiDefaultClickRenderStep* pkScreenSpaceStep = NiDynamicCast(
+        NiDefaultClickRenderStep, m_spFrame->GetRenderStepByName(
+        m_kScreenSpaceRenderStepName));
+    NIASSERT(pkScreenSpaceStep);
+    pkScreenSpaceStep->AppendRenderClick(pkUnicodeRenderClick);
+
+    return true;
+}
+//---------------------------------------------------------------------------
+bool Bowling::CreateScreenElements()
+{
+
+	 // Create screen textures for scoresheet.
+    NiTexture::FormatPrefs kPrefs;
+    kPrefs.m_eMipMapped = NiTexture::FormatPrefs::NO;
+
+    NiTexture* pkTexture = NiSourceTexture::Create(
+        NiApplication::ConvertMediaFilename("scoresheet2.TGA"), kPrefs);
+    if (!pkTexture)
+        return false;
+
+    NiMeshScreenElements* pkLogo = NiMeshScreenElements::Create(
+        NiRenderer::GetRenderer(),
+        0.0f, 0.0f, 
+        pkTexture->GetWidth(), pkTexture->GetHeight(), 
+        NiRenderer::CORNER_TOP_LEFT);
+
+    NiTexturingProperty *pkTexProp = NiNew NiTexturingProperty();
+    pkTexProp->SetBaseTexture(pkTexture);
+    pkTexProp->SetBaseFilterMode(NiTexturingProperty::FILTER_NEAREST);
+    pkTexProp->SetApplyMode(NiTexturingProperty::APPLY_REPLACE);
+    pkTexProp->SetBaseClampMode(NiTexturingProperty::CLAMP_S_CLAMP_T);
+
+    NiAlphaProperty *pkAlphaProp = NiNew NiAlphaProperty();
+    pkAlphaProp->SetAlphaBlending(true);
+
+    NiZBufferProperty *pkZBufProp = NiNew NiZBufferProperty();
+    pkZBufProp->SetZBufferTest(false);
+    pkZBufProp->SetZBufferWrite(true);
+
+    pkLogo->AttachProperty(pkTexProp);
+    pkLogo->AttachProperty(pkAlphaProp);
+    pkLogo->AttachProperty(pkZBufProp);
+    pkLogo->UpdateProperties();
+
+
+    if (!pkLogo)
+        return false;
+
+
+
+    GetScreenElements().AddTail(pkLogo);
+    
+
+    return true;
+}
+
+//---------------------------------------------------------------------------
+
+//bool Bowling::CreateUIElements()
+//{
+//	/*
+//	unsigned int uiWidth, uiHeight;
+//    NiRenderer::GetRenderer()->ConvertFromNDCToPixels(1.0f, 1.0f, 
+//        uiWidth, uiHeight);
+//
+//    NiPoint2 kDimensions(0.0f, 0.0f);
+//
+//	NiUIButton* menu = NiNew NiUIButton( "New Game" );
+//	menu->SetDimensions( .3, .125 );
+//	menu->SetOffset(0,.5);
+//	menu->SetVisible(true);
+//	NiUIGroup* pkUIGroup = NiNew NiUIGroup("Bowling!", NiUIManager::GetUIManager()->GetMaxCharHeightInNSC() * 10.0f);
+//	pkUIGroup->AddChild(menu);
+//
+//	pkUIGroup->SetDimensions(.33,.33);
+//	pkUIGroup->SetOffset(.33,.25);
+//	pkUIGroup->UpdateRect();
+//
+//	NiUIManager::GetUIManager()->AddUIGroup( pkUIGroup );
+//
+//	NewGameMenu::getInstance()->setUIGroup( pkUIGroup );
+//	NiUIManager::GetUIManager()->SetVisible(true);
+//	*/
+//	return true;
+//}
+
+/*
+bool Bowling::CreateUISystem()
+{
+	NiUIManager::Create();
+    NiUIManager* pkUIManager = NiUIManager::GetUIManager();
+    if (pkUIManager == NULL)
+          return false;
+
+	if( !pkUIManager->Initialize( GetInputSystem(), ConvertMediaFilename("UISkin.dds"), m_spCursor ) )
+	{
+		return false;
+	}
+
+	m_fUIElementHeight = pkUIManager->GetMaxCharHeightInNSC() * 3.0f;
+    m_fUIElementWidth = NiMin(0.40f,
+          pkUIManager->GetMaxCharWidthInNSC() * 25.0f);
+    m_fUIGroupHeaderHeight = pkUIManager->GetMaxCharHeightInNSC() * 2.75f;
+    m_kUIElementGroupOffset.x = pkUIManager->GetMaxCharWidthInNSC() * 1.5f;
+    m_kUIElementGroupOffset.y = pkUIManager->GetMaxCharHeightInNSC() * 0.5f +
+          m_fUIGroupHeaderHeight;
+
+    if (m_bUseNavSystem)
+    {
+          if (!NiNavManager::Create())
+                return false;
+    }
+
+    NiUIManager::GetUIManager()->ReserveGamePadButton(
+          NiInputGamePad::NIGP_A, &m_kHideAll, NiUIManager::WASPRESSED);
+    NiUIManager::GetUIManager()->ReserveKeyboardButton(
+          NiInputKeyboard::KEY_Z, &m_kHideAll, NiUIManager::WASPRESSED);
+
+	return true;
+}
+*/
 
 void Bowling::ApplyForceToActor(NxActor* actor, const NxVec3& forceDir, const NxReal forceStrength)
 {
@@ -256,116 +477,48 @@ void Bowling::ProcessInput()
 {
 	NxReal gForceStrength = 10000;
     NiApplication::ProcessInput();
+
+	NiInputMouse* pkMouse = GetInputSystem()->GetMouse();
+
+	GameStateManager::getInstance()->processMouse( pkMouse );
+
+
+
     NiInputKeyboard* pkKeyboard = GetInputSystem()->GetKeyboard();
-    if (pkKeyboard)
-    {
-        if (pkKeyboard->KeyWasPressed(NiInputKeyboard::KEY_R))
-        {
-            // Reset the ball's position
-            ResetBall();
-        }
+	GameStateManager::getInstance()->processKeyboard(pkKeyboard);
 
-		if (spCubeProp != NULL) {		
-			NxActor* cubeActor = ((NiPhysXRigidBodyDest*)spCubeProp->GetDestinationAt(0))->GetActor();
-
-			// Apply forces to the cube
-			// Remember this demo is using different X, Y, Z axis 
-			if (pkKeyboard->KeyWasPressed(NiInputKeyboard::KEY_LEFT))
-			{
-				ApplyForceToActor(cubeActor, NxVec3(0, -1, 0), gForceStrength);
-			}
-			else if (pkKeyboard->KeyWasPressed(NiInputKeyboard::KEY_RIGHT))
-			{
-				ApplyForceToActor(cubeActor, NxVec3(0, 1, 0), gForceStrength);
-			}
-			else if (pkKeyboard->KeyWasPressed(NiInputKeyboard::KEY_UP))
-			{
-				ApplyForceToActor(cubeActor, NxVec3(-1, 0, 0), gForceStrength);
-			}
-			else if (pkKeyboard->KeyWasPressed(NiInputKeyboard::KEY_DOWN))
-			{
-				ApplyForceToActor(cubeActor, NxVec3(1, 0, 0), gForceStrength);
-			}
-
-			if (pkKeyboard->KeyWasPressed(NiInputKeyboard::KEY_1))
-			{
-				if (cubeActor->getMass() == 1.0f) {
-					cubeActor->setMass(5.0f);
-				}
-				else {
-					cubeActor->setMass(1.0f);
-				}
-
-			}
-
-			if (pkKeyboard->KeyWasPressed(NiInputKeyboard::KEY_2))
-			{				
-				NxReal paramSetting = m_pkPhysManager->m_pPhysXSDK->getParameter(NX_VISUALIZE_COLLISION_SHAPES);
-				if (paramSetting == 0.0f) {
-					paramSetting = 1.0f;
-				}
-				else {
-					paramSetting = 0.0f;
-				}
-
-				m_pkPhysManager->m_pPhysXSDK->setParameter(NX_VISUALIZE_COLLISION_SHAPES, paramSetting);
-			}
-
-			if (pkKeyboard->KeyWasPressed(NiInputKeyboard::KEY_G))
-			{
-				spCone->SetTranslate(spCone->GetTranslate() + NiPoint3(1.0f, 0.0f, 0.0f));
-			}
-			else if (pkKeyboard->KeyWasPressed(NiInputKeyboard::KEY_T))
-			{
-				spCone->SetTranslate(spCone->GetTranslate() + NiPoint3(-1.0f, 0.0f, 0.0f));
-			}
-		}
-
-    }
 
     NiInputGamePad* pkGamePad;
     for (unsigned int uiPort = 0; uiPort < NiInputSystem::MAX_GAMEPADS; 
         uiPort++)
     {
         pkGamePad = m_spInputSystem->GetGamePad(uiPort);
-        if (pkGamePad)
-        {
-            if (pkGamePad->ButtonWasPressed(NiInputGamePad::NIGP_START))
-            {
-                // Reset the ball's position
-                ResetBall();
-            }
-        }
+
+		GameStateManager::getInstance()->processGamePad(pkGamePad);
+
     }
 
 }
 //---------------------------------------------------------------------------
 void Bowling::UpdateFrame()
 {
-    NiApplication::UpdateFrame(); // Calls process input
+   
 
-	soundSystem.Update();
+	NiApplication::UpdateFrame(); // Calls process input
+	//NiUIManager::GetUIManager()->UpdateUI();
+	GameStateManager::getInstance()->update(m_fAccumTime);    
 
+	DrawScore();
+	//soundSystem.Update();
+
+	/*
     // Update the camera. This uses global time.
     if (m_kTurret.Read())
         m_spTrnNode->Update(m_fAccumTime);
+		*/ 
+	
         
-    // A call to Simulate starts the simulation.
-    // We pass it the target time. 
-    m_spPhysScene->Simulate(m_fAccumTime);
-    
-    // We want the results immediately, so we call FetchResults with
-    // the same time we just asked for, and the second argument as true
-    // to block on the results.
-    m_spPhysScene->FetchResults(m_fAccumTime, true);
-
-    // Now the actors have been moved, but we need to update the
-    // Gamebryo objects. UpdateDestinations does that. Note it is called
-    // on the NiPhysXScene that owns the objects being updated.
-    m_spPhysScene->UpdateDestinations(m_fAccumTime);
-    
-    // FInally we update the scene graph.
-    m_spScene->Update(m_fAccumTime);
+   
 }
 //---------------------------------------------------------------------------
 void Bowling::ResetBall()
@@ -374,6 +527,7 @@ void Bowling::ResetBall()
     // stored in the snapshot that was originally loaded from the NIF file.
     // By default, that is snapshot 0.
     m_spPhysScene->RestoreSnapshotState(0);
+	m_ballInMotion = false;
 }
 //---------------------------------------------------------------------------
 void Bowling::SetTurretControls()
@@ -395,24 +549,20 @@ void Bowling::SetTurretControls()
     m_kTurret.SetStandardTrn(fTrnSpeed, m_spTrnNode);
     m_kTurret.SetStandardRot(fRotSpeed, m_spTrnNode, m_spRotNode);
     NiMatrix3 kRot;
-    kRot.SetCol(0, 1.0f, 0.0f, 0.0f);
-    kRot.SetCol(1, 0.0f, 0.0f, 1.0f);
-    kRot.SetCol(2, 0.0f, -1.0f, 0.0f);
+    kRot.SetCol(0, -1.0f, 0.0f, 0.0f);
+    kRot.SetCol(1, 0.0f, -1.0f, 0.0f);
+    kRot.SetCol(2, 0.0f, 0.0f, 1.0f);
     m_kTurret.SetAxes(kRot);
     
     if (m_kTurret.GetInputDevice() == NiTurret::TUR_KEYBOARD)
     {
-        m_kTurret.SetTrnButtonsKB(0,
+        m_kTurret.SetTrnButtonsKB(2,
             NiInputKeyboard::KEY_W, NiInputKeyboard::KEY_S);
         m_kTurret.SetTrnButtonsKB(1,
             NiInputKeyboard::KEY_Q, NiInputKeyboard::KEY_E);
-        m_kTurret.SetTrnButtonsKB(2,
+        m_kTurret.SetTrnButtonsKB(0,
             NiInputKeyboard::KEY_D, NiInputKeyboard::KEY_A);
             
-        m_kTurret.SetRotButtonsKB(1,
-            NiInputKeyboard::KEY_J, NiInputKeyboard::KEY_L);
-        m_kTurret.SetRotButtonsKB(2,
-            NiInputKeyboard::KEY_I, NiInputKeyboard::KEY_K);
     }
     else if (m_kTurret.GetInputDevice() == NiTurret::TUR_GAMEPAD)
     {
@@ -443,4 +593,46 @@ void Bowling::SetTurretControls()
 
 void Bowling::processContacts(NxContactPair& pair, NxU32 events) {
 	//soundSystem.PlayContactSound();
+}
+
+void Bowling::SetCamera(NiCameraPtr cam)
+{
+	m_spCamera = cam;
+}
+
+//---------------------------------------------------------------------------
+bool Bowling::CreateScoreElements(){
+	//Setup text display
+	m_spFont = NiFont::Create( NiRenderer::GetRenderer(),
+    NiApplication::ConvertMediaFilename("Font/ArialUnicodeMS_BA_36.nff"));
+    if (!m_spFont)
+    {
+        NiOutputDebugString("ERROR:  NFF Font File Load Failed.\n");
+        return false;
+    }
+
+	// Use viewport size to calculate text positions
+	unsigned int uiWelcomeOffsetX = 34;
+    unsigned int uiWelcomeOffsetY = 63;
+
+		//"Hello"
+	m_num = 0;
+	char displ [50];
+	sprintf (displ, "Hello %d", m_num);
+		
+	m_spStrThrows = NiNew Ni2DString(m_spFont, m_uiFlags, 128,
+           displ, m_kColor, 
+           (short)uiWelcomeOffsetX,
+           (short)uiWelcomeOffsetY);
+
+    m_spStrThrows->SetPointSize(12);
+
+	return true;
+}
+
+//----------------------------------------------------------------------------
+void Bowling::DrawScore(){
+	// Draw Updated Score
+	m_num++;
+    m_spStrThrows->sprintf("%d",m_num);
 }
