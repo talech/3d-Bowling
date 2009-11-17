@@ -1,0 +1,1 @@
+strings.cfg is a text file that contains all of the characters that will be displayed in the UnicodeCharacterSets demo.  It was created by combining demoString_Options.txt and demoString_Welcome.txt.  NiFontCreator was run using the font Arial Unicode MS, at 36 point, bold, with anti-aliasing turned on.  The output file was saved as ArialUnicodeMS_BA_36.nff.

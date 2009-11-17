@@ -1,0 +1,87 @@
+#ifndef Bowling_H
+#define Bowling_H
+
+#define GAMEBRYO
+
+
+#include <efdPhysX/PhysXSDKManager.h>
+
+#include <NiSample.h>
+#include <NiFont.h>
+#include <Ni2DString.h>
+#include <Ni2DStringRenderClick.h>
+#include <NiPhysX.h>
+#include "SoundSystem.h"
+#include "MousePath.h"
+
+
+#include "GameStateManager.h"
+
+class Bowling : public NiSample
+{
+public:
+    Bowling();
+    ~Bowling();
+    
+    bool Initialize();
+    void Terminate();
+    void UpdateFrame();
+    void ProcessInput();
+	bool CreateUIElements();
+	void ApplyForceToActor(NxActor* actor, const NxVec3& forceDir, const NxReal forceStrength);
+
+	void SetCamera( NiCameraPtr cam );
+
+	SoundSystem soundSystem;
+
+protected:
+    // Create all the contents of the scene
+    bool CreateScene();
+	bool CreateFrame();
+    void ResetBall();
+    
+    // Remap the keys used to control the view.
+    void SetTurretControls();
+
+    // Physics related members
+    efdPhysX::PhysXSDKManager* m_pkPhysManager;
+    NiPhysXScenePtr m_spPhysScene;
+
+    // Keyboard and gamepad handling for the camera.
+    NiTurret m_kTurret;
+    NiNodePtr m_spTrnNode;
+    NiNodePtr m_spRotNode;
+	NiPhysXPropPtr spBallProp;
+	NiAVObjectPtr spCone;
+
+	//Screen Overlay
+	bool CreateScreenElements();
+	unsigned int m_uiFlags;
+	NiFontPtr m_spFont;
+    NiWChar* m_apkWelcome[1];
+    Ni2DStringPtr m_spStrWelcome;
+    NiColorA m_kWelcomeColor;
+    NiFixedString m_kUnicodeRenderClickName;
+
+	// MousePath to maintain the direction of the ball
+	MousePath m_mousePath;
+
+	// Keep track if the ball is in motion
+	bool m_ballInMotion;
+
+	// Physics contact callbacks
+    class ContactReporter : public NxUserContactReport    
+    {
+    public:
+        ContactReporter() : m_app(NULL) {}    
+        void onContactNotify(NxContactPair& pair, NxU32 events)
+        {
+            if (m_app) m_app->processContacts(pair, events);
+        }
+        Bowling* m_app;    
+    };
+    void processContacts(NxContactPair& pair, NxU32 events);
+	ContactReporter m_PhysContactReporter;
+};
+
+#endif // #ifdef Bowling_H

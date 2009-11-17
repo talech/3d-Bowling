@@ -1,0 +1,179 @@
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/25/Bowling/trunk/Bowling
+END
+ThrowBall.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/25/Bowling/trunk/Bowling/ThrowBall.cpp
+END
+PositionBall.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/26/Bowling/trunk/Bowling/PositionBall.cpp
+END
+Bowling.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/26/Bowling/trunk/Bowling/Bowling.cpp
+END
+InitializeState.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/11/Bowling/trunk/Bowling/InitializeState.cpp
+END
+SoundSystem.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/25/Bowling/trunk/Bowling/SoundSystem.h
+END
+ThrowBall.h
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/16/Bowling/trunk/Bowling/ThrowBall.h
+END
+BallRoll.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/26/Bowling/trunk/Bowling/BallRoll.cpp
+END
+PositionBall.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/9/Bowling/trunk/Bowling/PositionBall.h
+END
+GameStateManager.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/21/Bowling/trunk/Bowling/GameStateManager.cpp
+END
+MousePath.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/16/Bowling/trunk/Bowling/MousePath.cpp
+END
+Bowling.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/26/Bowling/trunk/Bowling/Bowling.h
+END
+InitializeState.h
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/9/Bowling/trunk/Bowling/InitializeState.h
+END
+ScoreKeeper.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/26/Bowling/trunk/Bowling/ScoreKeeper.cpp
+END
+NewGameMenu.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/21/Bowling/trunk/Bowling/NewGameMenu.cpp
+END
+BallRoll.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/26/Bowling/trunk/Bowling/BallRoll.h
+END
+GameStateManager.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/25/Bowling/trunk/Bowling/GameStateManager.h
+END
+MousePath.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/7/Bowling/trunk/Bowling/MousePath.h
+END
+Bowling.sln
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/9/Bowling/trunk/Bowling/Bowling.sln
+END
+ResetPins.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/26/Bowling/trunk/Bowling/ResetPins.cpp
+END
+ScoreKeeper.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/26/Bowling/trunk/Bowling/ScoreKeeper.h
+END
+NewGameMenu.h
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/13/Bowling/trunk/Bowling/NewGameMenu.h
+END
+GameState.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/7/Bowling/trunk/Bowling/GameState.h
+END
+LoadState.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/7/Bowling/trunk/Bowling/LoadState.cpp
+END
+ResetPins.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/9/Bowling/trunk/Bowling/ResetPins.h
+END
+RunningState.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/11/Bowling/trunk/Bowling/RunningState.cpp
+END
+Bowling.vcproj
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/26/Bowling/trunk/Bowling/Bowling.vcproj
+END
+LoadState.h
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/9/Bowling/trunk/Bowling/LoadState.h
+END
+RunningState.h
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/11/Bowling/trunk/Bowling/RunningState.h
+END
+SoundSystem.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/25/Bowling/trunk/Bowling/SoundSystem.cpp
+END
