@@ -32,6 +32,18 @@ void SoundSystem::Initialize() {
 
 	result = system->createStream("../Data/Win32/explosion.wav", FMOD_DEFAULT, 0, &contactSound);
     ERRCHECK(result);
+
+	result = system->createStream("../Data/Win32/Sounds/nothingButTheSand.mp3", FMOD_LOOP_NORMAL, 0, &backgroundMusic);
+	ERRCHECK(result);
+
+	result = system->playSound(FMOD_CHANNEL_FREE, backgroundMusic, false, 0);
+	ERRCHECK(result);
+
+	result = system->createStream("../Data/Win32/Sounds/BowlingAmbient.mp3", FMOD_LOOP_NORMAL, 0, &backgroundMusic);
+	ERRCHECK(result);
+
+	result = system->playSound(FMOD_CHANNEL_FREE, backgroundMusic, false, 0);
+	ERRCHECK(result);
 }
 
 void SoundSystem::PlayContactSound() {

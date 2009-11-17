@@ -19,4 +19,5 @@ private:
 	FMOD::System *system;
 	FMOD::Channel *channel;
 	FMOD::Sound *contactSound;
+	FMOD::Sound *backgroundMusic;
 };

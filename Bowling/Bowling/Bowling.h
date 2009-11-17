@@ -36,8 +36,6 @@ public:
 
 	void SetCamera( NiCameraPtr cam );
 
-	SoundSystem soundSystem;
-
 protected:
     // Create all the contents of the scene
     bool CreateScene();
@@ -68,6 +66,8 @@ protected:
     
     Ni2DStringPtr m_spStrThrows[NUM_THROWS];
 	Ni2DStringPtr m_spStrTotals[NUM_TOTALS];
+	Ni2DStringPtr m_spStrGameOver;
+	Ni2DStringPtr m_spStrFrameInfo;
     NiColorA m_kColor;
     NiFixedString m_kUnicodeRenderClickName;
 

@@ -75,6 +75,7 @@ Bowling::Bowling() : NiSample("T&T Bowling",
 	m_kColor = NiColorA(0.0f, 0.0f, 0.0f, 1.0f);
     m_uiFlags = NiFontString::COLORED | NiFontString::CENTERED;
     m_kUnicodeRenderClickName = "Unicode Render Click";
+
 }
 //---------------------------------------------------------------------------
 Bowling::~Bowling()
@@ -115,6 +116,7 @@ bool Bowling::Initialize()
     m_pkPhysManager->m_pPhysXSDK->setParameter(NX_VISUALIZE_BODY_AXES, 1.0f);
     m_pkPhysManager->m_pPhysXSDK->setParameter(NX_VISUALIZE_COLLISION_SHAPES, 1.0f);
 	m_pkPhysManager->m_pPhysXSDK->setParameter(NX_VISUALIZE_BODY_LIN_VELOCITY, 1.0f);
+	m_pkPhysManager->m_pPhysXSDK->setParameter(NX_DEFAULT_SLEEP_ANG_VEL_SQUARED, 10);
 
 
     if (!NiApplication::Initialize())
@@ -157,7 +159,8 @@ void Bowling::Terminate()
     // The PhysX manager must be shut down after all PhysX content has been
     // deleted and before the application terminates.
     m_pkPhysManager->Shutdown();
-    
+
+	NiApplication::Terminate();    
     NiSample::Terminate();
 }
 //---------------------------------------------------------------------------
@@ -221,11 +224,7 @@ bool Bowling::CreateScene()
     NiPhysXPropPtr spLaneProp = 0;
     for (unsigned int ui = 1; ui < kStream.GetObjectCount(); ui++)
     {
-        if (NiIsKindOf(NiCamera, kStream.GetObjectAt(ui)))
-        {
-            //m_spCamera = (NiCamera*)kStream.GetObjectAt(ui);
-        }
-        else if (NiIsKindOf(NiPhysXProp, kStream.GetObjectAt(ui)))
+        if (NiIsKindOf(NiPhysXProp, kStream.GetObjectAt(ui)))
         {
             // We have found the PhysX content in the NIF.
             spLaneProp = (NiPhysXProp*)kStream.GetObjectAt(ui);
@@ -345,6 +344,8 @@ bool Bowling::CreateFrame()
 	for(int i=0; i<NUM_TOTALS; i++){
 		pkUnicodeRenderClick->Append2DString(m_spStrTotals[i]);
 	}
+	pkUnicodeRenderClick->Append2DString(m_spStrGameOver);
+	pkUnicodeRenderClick->Append2DString(m_spStrFrameInfo);
 
     // Insert render click at the end of the main render step.
     NIASSERT(m_spFrame);
@@ -515,13 +516,6 @@ void Bowling::UpdateFrame()
 	GameStateManager::getInstance()->update(m_fAccumTime);    
 
 	DrawScore();
-	//soundSystem.Update();
-
-	/*
-    // Update the camera. This uses global time.
-    if (m_kTurret.Read())
-        m_spTrnNode->Update(m_fAccumTime);
-		*/ 
 	
         
    
@@ -609,6 +603,7 @@ void Bowling::SetCamera(NiCameraPtr cam)
 //---------------------------------------------------------------------------
 bool Bowling::CreateScoreElements(){
 	//Setup text display
+		
 	m_spFont = NiFont::Create( NiRenderer::GetRenderer(),
     NiApplication::ConvertMediaFilename("Font/ArialUnicodeMS_BA_36.nff"));
     if (!m_spFont)
@@ -640,7 +635,7 @@ bool Bowling::CreateScoreElements(){
 	uiWelcomeOffsetX = 50;
     uiWelcomeOffsetY = 100;
 
-	m_num = 110;
+	m_num = 0;
 	sprintf (displ, "%d", m_num);
 		
 	for(int i=0; i<NUM_TOTALS; i++){
@@ -653,14 +648,80 @@ bool Bowling::CreateScoreElements(){
 		m_spStrTotals[i]->SetPointSize(24);
 	}
 
+	uiWelcomeOffsetX = 880;
+    uiWelcomeOffsetY = 50;
+
+	m_num = 0;
+	sprintf (displ, "Frame: %d \n Throw: ", m_num);
+		
+	m_spStrFrameInfo = NiNew Ni2DString(m_spFont, m_uiFlags, 128,
+			  displ, m_kColor, 
+			  (short)uiWelcomeOffsetX,
+			  (short)uiWelcomeOffsetY);
+
+	m_spStrFrameInfo->SetPointSize(24);
+
+
+	uiWelcomeOffsetX = (NiRenderer::GetRenderer()->GetDefaultBackBuffer()->GetWidth())/2;
+    uiWelcomeOffsetY = (NiRenderer::GetRenderer()->GetDefaultBackBuffer()->GetWidth())/5;
+		
+	m_spStrGameOver = NiNew Ni2DString(m_spFont, m_uiFlags, 128,
+			  "", m_kColor, 
+			  (short)uiWelcomeOffsetX,
+			  (short)uiWelcomeOffsetY);
+
+
+	m_spStrGameOver->SetPointSize(24);
+	
+
 	return true;
 }
 
 //----------------------------------------------------------------------------
 void Bowling::DrawScore(){
 	// Draw Updated Score
-	/*m_num++;
 	for(int i=0; i<NUM_THROWS; i++){
-		m_spStrThrows[i]->sprintf("%d",m_num);
-	}*/
+		int score = GameStateManager::getInstance()->score->getScoreThrow(i);
+		if(score == -1){
+			m_spStrThrows[i]->SetText(" ");
+		}
+		else if(score == 0){
+			m_spStrThrows[i]->SetText("-");
+		}
+		else if((((float)i/2.0) == 0) && score == 10){
+			m_spStrThrows[i]->SetText("/");
+		}
+		else if((((float)i/2.0) != 0) && score == 10){
+			m_spStrThrows[i]->SetText("X");
+		}
+		else{
+			m_spStrThrows[i]->sprintf("%d",score);
+		}
+	}
+
+	for(int i=0; i<(NUM_TOTALS-1); i++){
+		int score = GameStateManager::getInstance()->score->getFrameScore(i+1);
+		if(score == -1){
+			m_spStrTotals[i]->SetText(" ");
+		}
+		else{
+			m_spStrTotals[i]->sprintf("%d",score);
+		}
+	}
+	int score = GameStateManager::getInstance()->score->getTotalScore();
+	if(score == -1){
+		m_spStrTotals[NUM_TOTALS-1]->SetText(" ");
+	}
+	else
+		m_spStrTotals[NUM_TOTALS-1]->sprintf("%d",score);
+	
+	int m_f = GameStateManager::getInstance()->score->getFrame();
+	int m_t = GameStateManager::getInstance()->score->getThrow();
+	m_spStrFrameInfo->sprintf("Frame: %d \n Throw: %d", m_f,m_t);
+
+	if(GameStateManager::getInstance()->score->isGameOver()){
+		int score = GameStateManager::getInstance()->score->getTotalScore();
+		m_spStrGameOver->sprintf("Game Over!\n Your score was: %d", score);
+	}
+
 }

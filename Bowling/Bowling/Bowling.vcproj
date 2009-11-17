@@ -138,7 +138,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="efd.lib PhysXLoader.lib efdPhysX.lib NiCursor.lib NiUserInterface.lib NiFont.lib NiPhysX.lib NiSystem.lib NiFloodgate.lib NiMain.lib NiMesh.lib NiAnimation.lib NiApplication.lib NiVisualTracker.lib NiInput.lib fmodex_vc.lib"
+				AdditionalDependencies="efd.lib PhysXLoader.lib efdPhysX.lib NiCursor.lib NiUserInterface.lib NiFont.lib NiPhysX.lib NiSystem.lib NiFloodgate.lib NiMain.lib NiMesh.lib NiAnimation.lib NiApplication.lib NiSample.lib NiVisualTracker.lib NiInput.lib fmodex_vc.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(DXSDK_DIR)\Lib\x86&quot;;&quot;$(FMOD)\api\lib&quot;;&quot;$(EMERGENT_PATH)\sdk\Win32\Lib\VC90\$(ConfigurationName)&quot;; &quot;$(PHYSXINSTALLPATH)\SDKs\lib\win32\&quot;;"
 				GenerateDebugInformation="true"
@@ -184,6 +184,10 @@
 			</File>
 			<File
 				RelativePath=".\MousePath.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ScoreKeeper.cpp"
 				>
 			</File>
 			<File
@@ -242,6 +246,10 @@
 			</File>
 			<File
 				RelativePath=".\MousePath.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ScoreKeeper.h"
 				>
 			</File>
 			<File
@@ -311,10 +319,6 @@
 			Name="Data"
 			>
 			<File
-				RelativePath="..\Data\Win32\Ball.nif"
-				>
-			</File>
-			<File
 				RelativePath="..\Data\Win32\BallText.nif"
 				>
 			</File>
@@ -332,10 +336,6 @@
 			</File>
 			<File
 				RelativePath="..\Data\Win32\explosion.wav"
-				>
-			</File>
-			<File
-				RelativePath="..\Data\Win32\lane_gutter.nif"
 				>
 			</File>
 			<File
