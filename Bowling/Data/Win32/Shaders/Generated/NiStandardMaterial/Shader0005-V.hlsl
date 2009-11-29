@@ -6,8 +6,8 @@ OUTPUTWORLDPOS = 0
 OUTPUTWORLDNBT = 0
 OUTPUTWORLDVIEW = 0
 OUTPUTTANGENTVIEW = 0
-NORMAL = 1
-SPECULAR = 1
+NORMAL = 0
+SPECULAR = 0
 FOGTYPE = 0
 ENVMAPTYPE = 0
 PROJLIGHTMAPCOUNT = 0
@@ -39,13 +39,13 @@ UVSET10 = 0
 UVSET10TEXOUTPUT = 0
 UVSET11 = 0
 UVSET11TEXOUTPUT = 0
-POINTLIGHTCOUNT = 1
+POINTLIGHTCOUNT = 0
 SPOTLIGHTCOUNT = 0
 DIRLIGHTCOUNT = 0
 VERTEXCOLORS = 0
 VERTEXLIGHTSONLY = 1
 AMBDIFFEMISSIVE = 0
-LIGHTINGMODE = 1
+LIGHTINGMODE = 0
 APPLYMODE = 1
 */
 
@@ -64,18 +64,7 @@ APPLYMODE = 1
 
 float4x4 g_World;
 float4x4 g_ViewProj;
-float4 g_EyePos;
-float4 g_MaterialSpecular;
-float4 g_MaterialPower;
 float4 g_MaterialEmissive;
-float4 g_MaterialDiffuse;
-float4 g_MaterialAmbient;
-float4 g_AmbientLight;
-float4 g_PointAmbient0;
-float4 g_PointDiffuse0;
-float4 g_PointSpecular0;
-float4 g_PointWorldPosition0;
-float4 g_PointAttenuation0;
 //---------------------------------------------------------------------------
 // Functions:
 //---------------------------------------------------------------------------
@@ -101,22 +90,6 @@ void TransformPosition(float3 Position,
 //---------------------------------------------------------------------------
 /*
 
-    This fragment is responsible for applying the view projection transform
-    to the input world position.
-    
-*/
-
-void ProjectPositionWorldToProj(float4 WorldPosition,
-    float4x4 ViewProjection,
-    out float4 ProjPos)
-{
-
-    ProjPos = mul(WorldPosition, ViewProjection);
-    
-}
-//---------------------------------------------------------------------------
-/*
-
     Separate a float4 into a float3 and a float.   
     
 */
@@ -133,195 +106,17 @@ void SplitColorAndOpacity(float4 ColorAndOpacity,
 //---------------------------------------------------------------------------
 /*
 
-    This fragment is responsible for applying the world transform to the
-    normal.
+    This fragment is responsible for applying the view projection transform
+    to the input world position.
     
 */
 
-void TransformNormal(float3 Normal,
-    float4x4 World,
-    out float3 WorldNrm)
+void ProjectPositionWorldToProj(float4 WorldPosition,
+    float4x4 ViewProjection,
+    out float4 ProjPos)
 {
 
-    // Transform the normal into world space for lighting
-    WorldNrm = mul( Normal, (float3x3)World );
-
-    // Should not need to normalize here since we will normalize in the pixel 
-    // shader due to linear interpolation across triangle not preserving
-    // normality.
-    
-}
-//---------------------------------------------------------------------------
-/*
-
-    This fragment is responsible for normalizing a float3.
-    
-*/
-
-void NormalizeFloat3(float3 VectorIn,
-    out float3 VectorOut)
-{
-
-    VectorOut = normalize(VectorIn);
-    
-}
-//---------------------------------------------------------------------------
-/*
-
-    This fragment is responsible for calculating the camera view vector.
-    
-*/
-
-void CalculateViewVector(float4 WorldPos,
-    float3 CameraPos,
-    out float3 WorldViewVector)
-{
-
-    WorldViewVector = CameraPos - WorldPos;
-    
-}
-//---------------------------------------------------------------------------
-/*
-
-    This fragment is responsible for accumulating the effect of a light
-    on the current pixel.
-    
-    LightType can be one of three values:
-        0 - Directional
-        1 - Point 
-        2 - Spot
-        
-    Note that the LightType must be a compile-time variable,
-    not a runtime constant/uniform variable on most Shader Model 2.0 cards.
-    
-    The compiler will optimize out any constants that aren't used.
-    
-    Attenuation is defined as (const, linear, quad, range).
-    Range is not implemented at this time.
-    
-    SpotAttenuation is stored as (cos(theta/2), cos(phi/2), falloff)
-    theta is the angle of the inner cone and phi is the angle of the outer
-    cone in the traditional DX manner. Gamebryo only allows setting of
-    phi, so cos(theta/2) will typically be cos(0) or 1. To disable spot
-    effects entirely, set cos(theta/2) and cos(phi/2) to -1 or lower.
-    
-*/
-
-void Light(float4 WorldPos,
-    float3 WorldNrm,
-    int LightType,
-    bool SpecularEnable,
-    float Shadow,
-    float3 WorldViewVector,
-    float4 LightPos,
-    float3 LightAmbient,
-    float3 LightDiffuse,
-    float3 LightSpecular,
-    float3 LightAttenuation,
-    float3 LightSpotAttenuation,
-    float3 LightDirection,
-    float4 SpecularPower,
-    float3 AmbientAccum,
-    float3 DiffuseAccum,
-    float3 SpecularAccum,
-    out float3 AmbientAccumOut,
-    out float3 DiffuseAccumOut,
-    out float3 SpecularAccumOut)
-{
-   
-    // Get the world space light vector.
-    float3 LightVector;
-    float DistanceToLight;
-    float DistanceToLightSquared;
-        
-    if (LightType == 0)
-    {
-        LightVector = -LightDirection;
-    }
-    else
-    {
-        LightVector = LightPos - WorldPos;
-        DistanceToLightSquared = dot(LightVector, LightVector);
-        DistanceToLight = length(LightVector);
-        LightVector = normalize(LightVector);
-    }
-    
-    // Take N dot L as intensity.
-    float LightNDotL = dot(LightVector, WorldNrm);
-    float LightIntensity = max(0, LightNDotL);
-
-    float Attenuate = Shadow;
-    
-    if (LightType != 0)
-    {
-        // Attenuate Here
-        Attenuate = LightAttenuation.x +
-            LightAttenuation.y * DistanceToLight +
-            LightAttenuation.z * DistanceToLightSquared;
-        Attenuate = max(1.0, Attenuate);
-        Attenuate = 1.0 / Attenuate;
-        Attenuate *= Shadow;
-
-        if (LightType == 2)
-        {
-            // Get intensity as cosine of light vector and direction.
-            float CosAlpha = dot(-LightVector, LightDirection);
-
-            // Factor in inner and outer cone angles.
-            float AttenDiff = LightSpotAttenuation.x - LightSpotAttenuation.y;
-            CosAlpha = saturate((CosAlpha - LightSpotAttenuation.y) / 
-                AttenDiff);
-
-            // Power to falloff.
-            // The pow() here can create a NaN if CosAlpha is 0 or less.
-            // On some cards (GeForce 6800), the NaN will propagate through
-            // a ternary instruction, so we need two to be safe.
-            float origCosAlpha = CosAlpha;
-            CosAlpha = origCosAlpha <= 0.0 ? 1.0 : CosAlpha;
-            CosAlpha = pow(CosAlpha, LightSpotAttenuation.z);
-            CosAlpha = origCosAlpha <= 0.0 ? 0.0 : CosAlpha;
-
-            // Multiply the spot attenuation into the overall attenuation.
-            Attenuate *= CosAlpha;
-        }
-    }
-    // Determine the interaction of diffuse color of light and material.
-    // Scale by the attenuated intensity.
-    DiffuseAccumOut = DiffuseAccum;
-    DiffuseAccumOut.rgb += LightDiffuse.rgb * LightIntensity * Attenuate;
-
-    // Determine ambient contribution - Is affected by shadow
-    AmbientAccumOut = AmbientAccum;
-    AmbientAccumOut.rgb += LightAmbient.rgb * Attenuate;
-
-    SpecularAccumOut = SpecularAccum;
-    if (SpecularEnable)
-    {
-        // Get the half vector.
-        float3 LightHalfVector = LightVector + WorldViewVector;
-        LightHalfVector = normalize(LightHalfVector);
-
-        // Determine specular intensity.
-        float LightNDotH = max(0.00001f, dot(WorldNrm, LightHalfVector));
-        float LightSpecIntensity = pow(LightNDotH, SpecularPower.x);
-        
-        //if (LightNDotL < 0.0)
-        //    LightSpecIntensity = 0.0;
-        // Must use the code below rather than code above.
-        // Using previous lines will cause the compiler to generate incorrect
-        // output.
-        float SpecularMultiplier = LightNDotL > 0.0 ? 1.0 : 0.0;
-        
-        // Attenuate Here
-        LightSpecIntensity = LightSpecIntensity * Attenuate * 
-            SpecularMultiplier;
-        
-        // Determine the interaction of specular color of light and material.
-        // Scale by the attenuated intensity.
-        SpecularAccumOut.rgb += LightSpecIntensity * LightSpecular;
-    }       
-
-    
+    ProjPos = mul(WorldPosition, ViewProjection);
     
 }
 //---------------------------------------------------------------------------
@@ -386,7 +181,6 @@ void CompositeFinalRGBAColor(float3 FinalColor,
 struct Input
 {
     float3 Position : POSITION0;
-    float3 Normal : NORMAL0;
     float2 UVSet0 : TEXCOORD0;
 
 };
@@ -399,8 +193,7 @@ struct Output
 {
     float4 PosProjected : POSITION0;
     float4 DiffuseAccum : TEXCOORD0;
-    float3 SpecularAccum : TEXCOORD1;
-    float2 UVSet0 : TEXCOORD2;
+    float2 UVSet0 : TEXCOORD1;
 
 };
 
@@ -416,50 +209,23 @@ Output Main(Input In)
     TransformPosition(In.Position, g_World, WorldPos_CallOut0);
 
 	// Function call #1
-    ProjectPositionWorldToProj(WorldPos_CallOut0, g_ViewProj, Out.PosProjected);
+    float3 Color_CallOut1;
+    float Opacity_CallOut1;
+    SplitColorAndOpacity(g_MaterialEmissive, Color_CallOut1, Opacity_CallOut1);
 
 	// Function call #2
-    float3 Color_CallOut2;
-    float Opacity_CallOut2;
-    SplitColorAndOpacity(g_MaterialDiffuse, Color_CallOut2, Opacity_CallOut2);
+    ProjectPositionWorldToProj(WorldPos_CallOut0, g_ViewProj, Out.PosProjected);
 
 	// Function call #3
-    float3 WorldNrm_CallOut3;
-    TransformNormal(In.Normal, g_World, WorldNrm_CallOut3);
+    float3 Diffuse_CallOut3;
+    float3 Specular_CallOut3;
+    ComputeShadingCoefficients(Color_CallOut1, float3(1.0, 1.0, 1.0), 
+        float3(1.0, 1.0, 1.0), float3(1.0, 1.0, 1.0), float3(0.0, 0.0, 0.0), 
+        float3(0.0, 0.0, 0.0), float3(0.0, 0.0, 0.0), bool(false), 
+        Diffuse_CallOut3, Specular_CallOut3);
 
 	// Function call #4
-    float3 VectorOut_CallOut4;
-    NormalizeFloat3(WorldNrm_CallOut3, VectorOut_CallOut4);
-
-	// Function call #5
-    float3 WorldViewVector_CallOut5;
-    CalculateViewVector(WorldPos_CallOut0, g_EyePos, WorldViewVector_CallOut5);
-
-	// Function call #6
-    float3 VectorOut_CallOut6;
-    NormalizeFloat3(WorldViewVector_CallOut5, VectorOut_CallOut6);
-
-	// Function call #7
-    float3 AmbientAccumOut_CallOut7;
-    float3 DiffuseAccumOut_CallOut7;
-    float3 SpecularAccumOut_CallOut7;
-    Light(WorldPos_CallOut0, VectorOut_CallOut4, int(1), bool(true), float(1.0), 
-        VectorOut_CallOut6, g_PointWorldPosition0, g_PointAmbient0, 
-        g_PointDiffuse0, g_PointSpecular0, g_PointAttenuation0, 
-        float3(-1.0, -1.0, 0.0), float3(1.0, 0.0, 0.0), g_MaterialPower, 
-        g_AmbientLight, float3(0.0, 0.0, 0.0), float3(0.0, 0.0, 0.0), 
-        AmbientAccumOut_CallOut7, DiffuseAccumOut_CallOut7, 
-        SpecularAccumOut_CallOut7);
-
-	// Function call #8
-    float3 Diffuse_CallOut8;
-    ComputeShadingCoefficients(g_MaterialEmissive, Color_CallOut2, 
-        g_MaterialAmbient, g_MaterialSpecular, SpecularAccumOut_CallOut7, 
-        DiffuseAccumOut_CallOut7, AmbientAccumOut_CallOut7, bool(false), 
-        Diffuse_CallOut8, Out.SpecularAccum);
-
-	// Function call #9
-    CompositeFinalRGBAColor(Diffuse_CallOut8, Opacity_CallOut2, 
+    CompositeFinalRGBAColor(Diffuse_CallOut3, Opacity_CallOut1, 
         Out.DiffuseAccum);
 
     Out.UVSet0 = In.UVSet0;

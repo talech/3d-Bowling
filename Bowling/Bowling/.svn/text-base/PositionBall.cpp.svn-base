@@ -1,5 +1,6 @@
 #include "PositionBall.h"
 #include "ThrowBall.h"
+#include "NewGameMenu.h"
 
 PositionBall PositionBall::mPositionBall;
 
@@ -9,8 +10,13 @@ PositionBall::~PositionBall()
 
 void PositionBall::enter()
 {
-	//NiAVObject* cam = GameStateManager::getInstance()->scene->GetObjectByName("laneView_cam");
-	//GameStateManager::getInstance()->setCamera(cam);
+	NiPhysXProp* spBallProp = GameStateManager::getInstance()->physScene->GetPropAt(1);
+	NxActor* ballActor = ((NiPhysXRigidBodyDest*)spBallProp->GetDestinationAt(0))->GetActor();
+	ballActor->setGlobalPosition(NxVec3(-0.4,0.4,25.2));
+
+	// Kill the velocity of the ball.
+	ballActor->setLinearVelocity(NxVec3(0, 0, 0));
+	ballActor->setMass(7.5);
 }
 
 void PositionBall::exit()
@@ -72,7 +78,12 @@ void PositionBall::processGamePad(GamePad *gamepad)
 
 void PositionBall::update(float delTime)
 {
-	
+	if( GameStateManager::getInstance()->score->isGameOver() )
+	{
+		GameStateManager::getInstance()->lastScore = GameStateManager::getInstance()->score->getTotalScore();
+		GameStateManager::getInstance()->changeState(NewGameMenu::getInstance());
+	}
+
 	// A call to Simulate starts the simulation.
     // We pass it the target time. 
     GameStateManager::getInstance()->physScene->Simulate(delTime);

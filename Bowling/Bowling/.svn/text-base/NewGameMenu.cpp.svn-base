@@ -10,12 +10,13 @@ NewGameMenu::~NewGameMenu()
 
 void NewGameMenu::enter()
 {
-	//mMenuGroup->SetVisible(true);
+	GameStateManager::getInstance()->waitingForNewGame = true;
 }
 
 void NewGameMenu::exit()
 {
-	//mMenuGroup->SetVisible(false);
+	GameStateManager::getInstance()->waitingForNewGame = false;
+	GameStateManager::getInstance()->score->reset();
 }
 
 void NewGameMenu::pause()

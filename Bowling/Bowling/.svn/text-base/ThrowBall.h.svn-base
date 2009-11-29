@@ -2,7 +2,7 @@
 #define ThrowBall_H
 
 #include "GameState.h"
-#include "MousePath.h"
+#include "MouseCurve.h"
 
 class ThrowBall : public GameState
 {
@@ -26,7 +26,7 @@ public:
 
 protected:
 
-	MousePath mPath;
+	MouseCurve mPath;
 	static ThrowBall mThrowBall;
 
 	ThrowBall() {}

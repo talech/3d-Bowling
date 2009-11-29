@@ -21,7 +21,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\..\..\..\..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_Config_Debug.vsprops;..\..\..\..\..\..\..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_Target_StaticLinkedExecutable.vsprops;..\..\..\..\..\..\..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_PhysX_StaticLink.vsprops;..\..\..\..\..\..\..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_Language.vsprops"
+			InheritedPropertySheets="..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_Config_Debug.vsprops;..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_Target_StaticLinkedExecutable.vsprops;..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_PhysX_StaticLink.vsprops;..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_Language.vsprops"
 			CharacterSet="0"
 			>
 			<Tool
@@ -96,7 +96,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\..\..\..\..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_Config_Release.vsprops;..\..\..\..\..\..\..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_Language.vsprops;..\..\..\..\..\..\..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_PhysX_StaticLink.vsprops;..\..\..\..\..\..\..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_Target_StaticLinkedExecutable.vsprops"
+			InheritedPropertySheets="..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_Config_Release.vsprops;..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_Language.vsprops;..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_PhysX_StaticLink.vsprops;..\..\..\..\..\Emergent\Gamebryo-LightSpeed-Binary\Build\CoreRuntime\Win32\VC90\Property Sheets\GB_Target_StaticLinkedExecutable.vsprops"
 			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
@@ -183,6 +183,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MouseCurve.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MousePath.cpp"
 				>
 			</File>
@@ -242,6 +246,10 @@
 			>
 			<File
 				RelativePath=".\Bowling.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MouseCurve.h"
 				>
 			</File>
 			<File

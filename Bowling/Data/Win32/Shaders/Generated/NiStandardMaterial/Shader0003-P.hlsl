@@ -1,14 +1,14 @@
 #line 2 "c:\Documents and Settings\Tam\Mis documentos\Documentos (oct09)\school\senior\cis 564\Bowling\Bowling Game\Bowling\Data\Win32\Shaders\Generated\NiStandardMaterial\Shader0003-P.hlsl"
 /*
 Shader description:
-APPLYMODE = 1
+APPLYMODE = 0
 WORLDPOSITION = 0
 WORLDNORMAL = 0
 WORLDNBT = 0
 WORLDVIEW = 0
 NORMALMAPTYPE = 0
 PARALLAXMAPCOUNT = 0
-BASEMAPCOUNT = 0
+BASEMAPCOUNT = 1
 NORMALMAPCOUNT = 0
 DARKMAPCOUNT = 0
 DETAILMAPCOUNT = 0
@@ -47,8 +47,8 @@ SPOTLIGHTCOUNT = 0
 DIRLIGHTCOUNT = 0
 SHADOWMAPFORLIGHT = 0
 SPECULAR = 0
-AMBDIFFEMISSIVE = 1
-LIGHTINGMODE = 0
+AMBDIFFEMISSIVE = 0
+LIGHTINGMODE = 1
 APPLYAMBIENT = 0
 BASEMAPALPHAONLY = 0
 APPLYEMISSIVE = 0
@@ -72,10 +72,32 @@ ALPHATEST = 0
 // Constant variables:
 //---------------------------------------------------------------------------
 
+sampler2D Base;
 //---------------------------------------------------------------------------
 // Functions:
 //---------------------------------------------------------------------------
 
+/*
+
+    This fragment is responsible for sampling a texture and returning its value
+    as a RGB value and an A value.
+    
+*/
+
+void TextureRGBASample(float2 TexCoord,
+    sampler2D Sampler,
+    bool Saturate,
+    out float4 ColorOut)
+{
+
+    ColorOut = tex2D(Sampler, TexCoord);
+    if (Saturate)
+    {
+        ColorOut = saturate(ColorOut);
+    }
+    
+}
+//---------------------------------------------------------------------------
 /*
 
     Separate a float4 into a float3 and a float.   
@@ -89,21 +111,6 @@ void SplitColorAndOpacity(float4 ColorAndOpacity,
 
     Color.rgb = ColorAndOpacity.rgb;
     Opacity = ColorAndOpacity.a;
-    
-}
-//---------------------------------------------------------------------------
-/*
-
-    This fragment is responsible for multiplying two float3's. 
-    
-*/
-
-void MultiplyFloat3(float3 V1,
-    float3 V2,
-    out float3 Output)
-{
-
-    Output = V1 * V2;
     
 }
 //---------------------------------------------------------------------------
@@ -145,7 +152,7 @@ void CompositeFinalRGBAColor(float3 FinalColor,
 struct Input
 {
     float4 PosProjected : POSITION0;
-    float4 DiffuseAccum : TEXCOORD0;
+    float2 UVSet0 : TEXCOORD0;
 
 };
 
@@ -167,21 +174,21 @@ Output Main(Input In)
 {
     Output Out;
 	// Function call #0
-    float3 Color_CallOut0;
-    float Opacity_CallOut0;
-    SplitColorAndOpacity(In.DiffuseAccum, Color_CallOut0, Opacity_CallOut0);
+    float4 ColorOut_CallOut0;
+    TextureRGBASample(In.UVSet0, Base, bool(false), ColorOut_CallOut0);
 
 	// Function call #1
-    float3 Output_CallOut1;
-    MultiplyFloat3(Color_CallOut0, float3(1.0f, 1.0f, 1.0f), Output_CallOut1);
+    float3 Color_CallOut1;
+    float Opacity_CallOut1;
+    SplitColorAndOpacity(ColorOut_CallOut0, Color_CallOut1, Opacity_CallOut1);
 
 	// Function call #2
     float3 OutputColor_CallOut2;
-    CompositeFinalRGBColor(Output_CallOut1, float3(0.0, 0.0, 0.0), 
+    CompositeFinalRGBColor(Color_CallOut1, float3(0.0, 0.0, 0.0), 
         OutputColor_CallOut2);
 
 	// Function call #3
-    CompositeFinalRGBAColor(OutputColor_CallOut2, Opacity_CallOut0, Out.Color0);
+    CompositeFinalRGBAColor(OutputColor_CallOut2, Opacity_CallOut1, Out.Color0);
 
     return Out;
 }

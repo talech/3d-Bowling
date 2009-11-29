@@ -13,6 +13,7 @@ ScoreKeeper::ScoreKeeper(){
 	gameOver = false;
 }
 
+
 ScoreKeeper::~ScoreKeeper(){
 }
 
@@ -162,4 +163,18 @@ ScoreKeeper::calculateStrike(int thisFrame, int currentFrame){
 	}
 	else
 		return -1;
+}
+
+void ScoreKeeper::reset()
+{
+	for(int i=0; i<21; i++){
+		throws[i] = -1; //set all scores to -1
+	}
+	for(int i=0; i<10; i++){
+		frameScore[i] = -1; //set all scores to -1
+	}
+	totalScore = 0;
+	frame = 1;
+	throwNum = 1;
+	gameOver = false;
 }

@@ -48,6 +48,9 @@ public:
 	NiNodePtr scene;
 	ScoreKeeper* score;
 	SoundSystem soundSystem;
+	
+	int lastScore;
+	bool waitingForNewGame;
 
 private:
 
@@ -61,7 +64,7 @@ private:
 
 	static GameStateManager mManager;
 
-	GameStateManager() { mRunning = false; score = new ScoreKeeper(); }
+	GameStateManager() { mRunning = false; score = new ScoreKeeper(); waitingForNewGame = false; }
 
 	
 };

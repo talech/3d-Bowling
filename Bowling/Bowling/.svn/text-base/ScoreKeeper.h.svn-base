@@ -16,6 +16,8 @@ public:
 
 	void setScoreThrow(int score);
 	bool isGameOver(){return gameOver;}
+
+	void reset();
 	
 
 private:

@@ -69,6 +69,7 @@ protected:
 	Ni2DStringPtr m_spStrGameOver;
 	Ni2DStringPtr m_spStrFrameInfo;
     NiColorA m_kColor;
+    NiColorA m_whiteColor;
     NiFixedString m_kUnicodeRenderClickName;
 
 	// MousePath to maintain the direction of the ball

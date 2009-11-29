@@ -39,8 +39,8 @@ UVSET10 = 0
 UVSET10TEXOUTPUT = 0
 UVSET11 = 0
 UVSET11TEXOUTPUT = 0
-POINTLIGHTCOUNT = 1
-SPOTLIGHTCOUNT = 0
+POINTLIGHTCOUNT = 3
+SPOTLIGHTCOUNT = 1
 DIRLIGHTCOUNT = 0
 VERTEXCOLORS = 0
 VERTEXLIGHTSONLY = 1
@@ -73,6 +73,23 @@ float4 g_PointDiffuse0;
 float4 g_PointSpecular0;
 float4 g_PointWorldPosition0;
 float4 g_PointAttenuation0;
+float4 g_PointAmbient;
+float4 g_PointDiffuse;
+float4 g_PointSpecular;
+float4 g_PointWorldPosition;
+float4 g_PointAttenuation;
+float4 g_PointAmbient2;
+float4 g_PointDiffuse2;
+float4 g_PointSpecular2;
+float4 g_PointWorldPosition2;
+float4 g_PointAttenuation2;
+float4 g_SpotAmbient0;
+float4 g_SpotDiffuse0;
+float4 g_SpotSpecular0;
+float4 g_SpotWorldPosition0;
+float4 g_SpotAttenuation0;
+float4 g_SpotWorldDirection0;
+float4 g_SpotSpotAttenuation0;
 //---------------------------------------------------------------------------
 // Functions:
 //---------------------------------------------------------------------------
@@ -423,15 +440,54 @@ Output Main(Input In)
         DiffuseAccumOut_CallOut5, SpecularAccumOut_CallOut5);
 
 	// Function call #6
-    float3 Diffuse_CallOut6;
-    float3 Specular_CallOut6;
-    ComputeShadingCoefficients(g_MaterialEmissive, Color_CallOut4, 
-        g_MaterialAmbient, float3(1.0, 1.0, 1.0), float3(0.0, 0.0, 0.0), 
-        DiffuseAccumOut_CallOut5, AmbientAccumOut_CallOut5, bool(false), 
-        Diffuse_CallOut6, Specular_CallOut6);
+    float3 AmbientAccumOut_CallOut6;
+    float3 DiffuseAccumOut_CallOut6;
+    float3 SpecularAccumOut_CallOut6;
+    Light(WorldPos_CallOut0, VectorOut_CallOut3, int(1), bool(false), 
+        float(1.0), float3(0.0, 0.0, 0.0), g_PointWorldPosition, g_PointAmbient, 
+        g_PointDiffuse, g_PointSpecular, g_PointAttenuation, 
+        float3(-1.0, -1.0, 0.0), float3(1.0, 0.0, 0.0), 
+        float4(1.0, 1.0, 1.0, 1.0), AmbientAccumOut_CallOut5, 
+        DiffuseAccumOut_CallOut5, float3(0.0, 0.0, 0.0), 
+        AmbientAccumOut_CallOut6, DiffuseAccumOut_CallOut6, 
+        SpecularAccumOut_CallOut6);
 
 	// Function call #7
-    CompositeFinalRGBAColor(Diffuse_CallOut6, Opacity_CallOut4, 
+    float3 AmbientAccumOut_CallOut7;
+    float3 DiffuseAccumOut_CallOut7;
+    float3 SpecularAccumOut_CallOut7;
+    Light(WorldPos_CallOut0, VectorOut_CallOut3, int(1), bool(false), 
+        float(1.0), float3(0.0, 0.0, 0.0), g_PointWorldPosition2, 
+        g_PointAmbient2, g_PointDiffuse2, g_PointSpecular2, g_PointAttenuation2, 
+        float3(-1.0, -1.0, 0.0), float3(1.0, 0.0, 0.0), 
+        float4(1.0, 1.0, 1.0, 1.0), AmbientAccumOut_CallOut6, 
+        DiffuseAccumOut_CallOut6, float3(0.0, 0.0, 0.0), 
+        AmbientAccumOut_CallOut7, DiffuseAccumOut_CallOut7, 
+        SpecularAccumOut_CallOut7);
+
+	// Function call #8
+    float3 AmbientAccumOut_CallOut8;
+    float3 DiffuseAccumOut_CallOut8;
+    float3 SpecularAccumOut_CallOut8;
+    Light(WorldPos_CallOut0, VectorOut_CallOut3, int(2), bool(false), 
+        float(1.0), float3(0.0, 0.0, 0.0), g_SpotWorldPosition0, g_SpotAmbient0, 
+        g_SpotDiffuse0, g_SpotSpecular0, g_SpotAttenuation0, 
+        g_SpotSpotAttenuation0, g_SpotWorldDirection0, 
+        float4(1.0, 1.0, 1.0, 1.0), AmbientAccumOut_CallOut7, 
+        DiffuseAccumOut_CallOut7, float3(0.0, 0.0, 0.0), 
+        AmbientAccumOut_CallOut8, DiffuseAccumOut_CallOut8, 
+        SpecularAccumOut_CallOut8);
+
+	// Function call #9
+    float3 Diffuse_CallOut9;
+    float3 Specular_CallOut9;
+    ComputeShadingCoefficients(g_MaterialEmissive, Color_CallOut4, 
+        g_MaterialAmbient, float3(1.0, 1.0, 1.0), float3(0.0, 0.0, 0.0), 
+        DiffuseAccumOut_CallOut8, AmbientAccumOut_CallOut8, bool(false), 
+        Diffuse_CallOut9, Specular_CallOut9);
+
+	// Function call #10
+    CompositeFinalRGBAColor(Diffuse_CallOut9, Opacity_CallOut4, 
         Out.DiffuseAccum);
 
     return Out;

@@ -73,6 +73,7 @@ Bowling::Bowling() : NiSample("T&T Bowling",
 	GameStateManager::getInstance()->start(RunningState::getInstance());
 
 	m_kColor = NiColorA(0.0f, 0.0f, 0.0f, 1.0f);
+	m_whiteColor = NiColorA(1.0f, 1.0f, 1.0f, 1.0f);
     m_uiFlags = NiFontString::COLORED | NiFontString::CENTERED;
     m_kUnicodeRenderClickName = "Unicode Render Click";
 
@@ -113,11 +114,6 @@ bool Bowling::Initialize()
     m_pkPhysManager->m_pPhysXSDK->setParameter(NX_SKIN_WIDTH, 0.01f);
     m_pkPhysManager->m_pPhysXSDK->setParameter(NX_BOUNCE_THRESHOLD, -0.75f);
     m_pkPhysManager->m_pPhysXSDK->setParameter(NX_VISUALIZATION_SCALE, 2.0f);
-    m_pkPhysManager->m_pPhysXSDK->setParameter(NX_VISUALIZE_BODY_AXES, 1.0f);
-    m_pkPhysManager->m_pPhysXSDK->setParameter(NX_VISUALIZE_COLLISION_SHAPES, 1.0f);
-	m_pkPhysManager->m_pPhysXSDK->setParameter(NX_VISUALIZE_BODY_LIN_VELOCITY, 1.0f);
-	m_pkPhysManager->m_pPhysXSDK->setParameter(NX_DEFAULT_SLEEP_ANG_VEL_SQUARED, 10);
-
 
     if (!NiApplication::Initialize())
         return false;
@@ -406,72 +402,6 @@ bool Bowling::CreateScreenElements()
     return true;
 }
 
-//---------------------------------------------------------------------------
-
-//bool Bowling::CreateUIElements()
-//{
-//	/*
-//	unsigned int uiWidth, uiHeight;
-//    NiRenderer::GetRenderer()->ConvertFromNDCToPixels(1.0f, 1.0f, 
-//        uiWidth, uiHeight);
-//
-//    NiPoint2 kDimensions(0.0f, 0.0f);
-//
-//	NiUIButton* menu = NiNew NiUIButton( "New Game" );
-//	menu->SetDimensions( .3, .125 );
-//	menu->SetOffset(0,.5);
-//	menu->SetVisible(true);
-//	NiUIGroup* pkUIGroup = NiNew NiUIGroup("Bowling!", NiUIManager::GetUIManager()->GetMaxCharHeightInNSC() * 10.0f);
-//	pkUIGroup->AddChild(menu);
-//
-//	pkUIGroup->SetDimensions(.33,.33);
-//	pkUIGroup->SetOffset(.33,.25);
-//	pkUIGroup->UpdateRect();
-//
-//	NiUIManager::GetUIManager()->AddUIGroup( pkUIGroup );
-//
-//	NewGameMenu::getInstance()->setUIGroup( pkUIGroup );
-//	NiUIManager::GetUIManager()->SetVisible(true);
-//	*/
-//	return true;
-//}
-
-/*
-bool Bowling::CreateUISystem()
-{
-	NiUIManager::Create();
-    NiUIManager* pkUIManager = NiUIManager::GetUIManager();
-    if (pkUIManager == NULL)
-          return false;
-
-	if( !pkUIManager->Initialize( GetInputSystem(), ConvertMediaFilename("UISkin.dds"), m_spCursor ) )
-	{
-		return false;
-	}
-
-	m_fUIElementHeight = pkUIManager->GetMaxCharHeightInNSC() * 3.0f;
-    m_fUIElementWidth = NiMin(0.40f,
-          pkUIManager->GetMaxCharWidthInNSC() * 25.0f);
-    m_fUIGroupHeaderHeight = pkUIManager->GetMaxCharHeightInNSC() * 2.75f;
-    m_kUIElementGroupOffset.x = pkUIManager->GetMaxCharWidthInNSC() * 1.5f;
-    m_kUIElementGroupOffset.y = pkUIManager->GetMaxCharHeightInNSC() * 0.5f +
-          m_fUIGroupHeaderHeight;
-
-    if (m_bUseNavSystem)
-    {
-          if (!NiNavManager::Create())
-                return false;
-    }
-
-    NiUIManager::GetUIManager()->ReserveGamePadButton(
-          NiInputGamePad::NIGP_A, &m_kHideAll, NiUIManager::WASPRESSED);
-    NiUIManager::GetUIManager()->ReserveKeyboardButton(
-          NiInputKeyboard::KEY_Z, &m_kHideAll, NiUIManager::WASPRESSED);
-
-	return true;
-}
-*/
-
 void Bowling::ApplyForceToActor(NxActor* actor, const NxVec3& forceDir, const NxReal forceStrength)
 {
 	NxReal	gDeltaTime = 1.0/60.0;
@@ -663,10 +593,10 @@ bool Bowling::CreateScoreElements(){
 
 
 	uiWelcomeOffsetX = (NiRenderer::GetRenderer()->GetDefaultBackBuffer()->GetWidth())/2;
-    uiWelcomeOffsetY = (NiRenderer::GetRenderer()->GetDefaultBackBuffer()->GetWidth())/5;
+    uiWelcomeOffsetY = 2*(NiRenderer::GetRenderer()->GetDefaultBackBuffer()->GetWidth())/5;
 		
 	m_spStrGameOver = NiNew Ni2DString(m_spFont, m_uiFlags, 128,
-			  "", m_kColor, 
+			  "", m_whiteColor, 
 			  (short)uiWelcomeOffsetX,
 			  (short)uiWelcomeOffsetY);
 
@@ -720,8 +650,16 @@ void Bowling::DrawScore(){
 	m_spStrFrameInfo->sprintf("Frame: %d \n Throw: %d", m_f,m_t);
 
 	if(GameStateManager::getInstance()->score->isGameOver()){
-		int score = GameStateManager::getInstance()->score->getTotalScore();
-		m_spStrGameOver->sprintf("Game Over!\n Your score was: %d", score);
+		int score = GameStateManager::getInstance()->lastScore;
+		m_spStrGameOver->sprintf("Game Over!\n Your score was: %d \n Press space for a new game!", score);
+	}
+	else if(GameStateManager::getInstance()->waitingForNewGame)
+	{
+		m_spStrGameOver->sprintf("Press space for a new game! \n To position the ball, press the left or right arrows. \n To throw the ball, click, drag back, then drag forward and release!");
+	}
+	else
+	{
+		m_spStrGameOver->sprintf("");
 	}
 
 }

@@ -25,6 +25,8 @@ public:
 
 protected:
 
+	int mNumPinsDown;
+
 	static ResetPins mResetPins;
 
 	ResetPins() {}
